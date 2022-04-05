@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "name": "arena-pvp-build-updater",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [],
+  "author": "thatmarcel",
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.3"
+  }
+}
