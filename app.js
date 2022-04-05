@@ -72,6 +72,8 @@ const fetchUnityShareIdDirectDownloadURL = async (shareId) => {
 
     const json = await response.json;
 
+    console.log(json);
+
     return json["links"]["download_primary"]["href"];
 }
 
