@@ -72,7 +72,7 @@ const fetchUnityShareIdDirectDownloadURL = async (shareId) => {
 
     const json = await response.json;
 
-    return json["links"]["download"]["href"];
+    return json["links"]["download_primary"]["href"];
 }
 
 app.post("/hooks/unity/build/success", async (req, res) => {
