@@ -12,13 +12,17 @@ app.use(cors());
 const unityAPIKey = process.env.UNITY_API_KEY;
 
 const cdnAccessKey = process.env.CDN_ACCESS_KEY;
+const cdnStorageAccessKey = process.env.CDN_STORAGE_ACCESS_KEY;
 const cdnStorageZoneName = process.env.CDN_STORAGE_ZONE_NAME;
 
 const cdnStorageDeleteFile = async (directoryPath, fileName) => {
-    await fetch(`https://storage.bunnycdn.com/${encodeURIComponent(cdnStorageZoneName)}/${encodeURIComponent(directoryPath)}/${encodeURIComponent(fileName)}`, {
+    const url = `https://storage.bunnycdn.com/${encodeURIComponent(cdnStorageZoneName)}/${directoryPath}/${encodeURIComponent(fileName)}`;
+
+    const response = await fetch(url, {
         method: "DELETE",
         headers: {
-            "AccessKey": cdnAccessKey
+            "User-Agent": "arena-pvp-build-updater/1",
+            "AccessKey": cdnStorageAccessKey
         }
     });
 }
@@ -26,20 +30,26 @@ const cdnStorageDeleteFile = async (directoryPath, fileName) => {
 const cdnStorageUploadFile = async (localFilePath, targetDirectoryPath, targetFileName) => {
     const fileStream = fs.createReadStream(localFilePath);
 
-    await fetch(`https://storage.bunnycdn.com/${encodeURIComponent(cdnStorageZoneName)}/${encodeURIComponent(targetDirectoryPath)}/${encodeURIComponent(targetFileName)}`, {
+    const url = `https://storage.bunnycdn.com/${encodeURIComponent(cdnStorageZoneName)}/${targetDirectoryPath}/${encodeURIComponent(targetFileName)}`;
+
+    await fetch(url, {
         method: "PUT",
         body: fileStream,
         headers: {
+            "User-Agent": "arena-pvp-build-updater/1",
             "Content-Type": "application/octet-stream",
-            "AccessKey": cdnAccessKey
+            "AccessKey": cdnStorageAccessKey
         }
     });
 }
 
 const cdnPurge = async () => {
-    await fetch(`https://api.bunny.net/purge?url=${encodeURIComponent(`https://${cdnStorageZoneName}.b-cdn.net/*`)}`, {
+    const url = `https://api.bunny.net/purge?url=${encodeURIComponent(`https://${cdnStorageZoneName}.b-cdn.net/*`)}`;
+
+    await fetch(url, {
         method: "POST",
         headers: {
+            "User-Agent": "arena-pvp-build-updater/1",
             "AccessKey": cdnAccessKey
         }
     })
@@ -63,29 +73,30 @@ const deleteFile = async (filePath) => {
 }
 
 const fetchUnityShareIdDirectDownloadURL = async (shareId) => {
-    const response = await fetch(`https://build-api.cloud.unity3d.com/api/v1/shares/${shareId}`, {
+    const url = `https://build-api.cloud.unity3d.com/api/v1/shares/${shareId}`;
+
+    const response = await fetch(url, {
         headers: {
+            "User-Agent": "arena-pvp-build-updater/1",
             "Authorization": `Basic ${unityAPIKey}`,
             "Content-Type": "application/json"
         }
     });
 
-    const json = await response.json;
+    const json = await response.json();
 
     console.log(json);
 
     return json["links"]["download_primary"]["href"];
 }
 
-app.post("/hooks/unity/build/success", async (req, res) => {
-    console.log(req.body);
-
-    const platform = req.body.platform;
+const handleUnityBuildSuccess = async (json) => {
+    const platform = json.platform;
 
     const targetDirectoryPath = "arena-pvp-game/downloads";
     const targetFileName = platform.includes("linux") ? "linux-x64.zip" : "win-x64.zip";
 
-    const shareURL = req.body.links["share_url"].href;
+    const shareURL = json.links["share_url"].href;
     
     const buildDownloadURL = await fetchUnityShareIdDirectDownloadURL(shareURL.split("=")[1]);
     const buildDownloadFilePath = `/tmp/arena-pvp-game-${targetFileName}`;
@@ -105,7 +116,7 @@ app.post("/hooks/unity/build/success", async (req, res) => {
         targetFileName
     );
 
-    const latestCommit = req.body.lastBuiltRevision.substring(0, 7);
+    const latestCommit = json.lastBuiltRevision.substring(0, 7);
 
     const latestCommitLocalFilePath = "/tmp/arena-pvp-game-latest-commit.txt";
 
@@ -125,6 +136,14 @@ app.post("/hooks/unity/build/success", async (req, res) => {
     );
 
     await cdnPurge();
+}
+
+app.post("/hooks/unity/build/success", async (req, res) => {
+    console.log(req.body);
+
+    handleUnityBuildSuccess(req.body);
+
+    res.status(200).send("Success");
 });
 
 app.listen(process.env.PORT || 4000);
