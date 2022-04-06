@@ -90,7 +90,7 @@ const fetchUnityShareIdDirectDownloadURL = async (shareId) => {
 
 const handleUnityBuildSuccess = async (json) => {
     const platform = json.platform;
-    const archId = platform.includes("linux") ? "linux-x64" : "win-x64"
+    const archId = platform.includes("linux") ? "linux-x64" : "win-x64";
 
     const targetDirectoryPath = "arena-pvp-game/downloads";
     const targetFileName = `${archId}.zip`;
@@ -139,7 +139,7 @@ const handleUnityBuildSuccess = async (json) => {
 
     await cdnPurge();
 
-    console.log("Finished processing build")
+    console.log("Finished processing build");
 }
 
 app.post("/hooks/unity/build/success", async (req, res) => {
