@@ -124,15 +124,18 @@ const handleUnityBuildSuccess = async (json) => {
 
     await fsPromises.writeFile(latestCommitLocalFilePath, latestCommit);
 
+    const latestCommitDirectoryPath = "arena-pvp-game";
+    const latestCommitFileName = `latest-commit-${platform}.txt`;
+
     await cdnStorageDeleteFile(
-        "arena-pvp-game",
-        "latest-commit.txt"
+        latestCommitDirectoryPath,
+        latestCommitFileName
     );
 
     await cdnStorageUploadFile(
         latestCommitLocalFilePath,
-        "arena-pvp-game",
-        "latest-commit.txt"
+        latestCommitDirectoryPath,
+        latestCommitFileName
     );
 
     await cdnPurge();
