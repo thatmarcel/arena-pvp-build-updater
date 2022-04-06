@@ -18,7 +18,7 @@ const cdnStorageZoneName = process.env.CDN_STORAGE_ZONE_NAME;
 const cdnStorageDeleteFile = async (directoryPath, fileName) => {
     const url = `https://storage.bunnycdn.com/${encodeURIComponent(cdnStorageZoneName)}/${directoryPath}/${encodeURIComponent(fileName)}`;
 
-    const response = await fetch(url, {
+    await fetch(url, {
         method: "DELETE",
         headers: {
             "User-Agent": "arena-pvp-build-updater/1",
@@ -85,8 +85,6 @@ const fetchUnityShareIdDirectDownloadURL = async (shareId) => {
 
     const json = await response.json();
 
-    console.log(json);
-
     return json["links"]["download_primary"]["href"];
 }
 
@@ -142,8 +140,8 @@ const handleUnityBuildSuccess = async (json) => {
 }
 
 app.post("/hooks/unity/build/success", async (req, res) => {
-    console.log(req.body);
-
+    console.log("Processing successful build");
+    
     handleUnityBuildSuccess(req.body);
 
     res.status(200).send("Success");
