@@ -137,11 +137,13 @@ const handleUnityBuildSuccess = async (json) => {
     );
 
     await cdnPurge();
+
+    console.log("Finished processing build")
 }
 
 app.post("/hooks/unity/build/success", async (req, res) => {
     console.log("Processing successful build");
-    
+
     handleUnityBuildSuccess(req.body);
 
     res.status(200).send("Success");
