@@ -43,8 +43,8 @@ const cdnStorageUploadFile = async (localFilePath, targetDirectoryPath, targetFi
     });
 }
 
-const cdnPurge = async () => {
-    const url = `https://api.bunny.net/purge?url=${encodeURIComponent(`https://${cdnStorageZoneName}.b-cdn.net/*`)}`;
+const cdnPurgePath = async (filePath) => {
+    const url = `https://api.bunny.net/purge?url=${encodeURIComponent(`https://${cdnStorageZoneName}.b-cdn.net/${filePath}`)}`;
 
     await fetch(url, {
         method: "POST",
@@ -137,7 +137,8 @@ const handleUnityBuildSuccess = async (json) => {
         latestCommitFileName
     );
 
-    await cdnPurge();
+    await cdnPurgePath(`${targetDirectoryPath}/${targetFileName}`);
+    await cdnPurgePath(`${latestCommitDirectoryPath}/${latestCommitFileName}`);
 
     console.log("Finished processing build");
 }
