@@ -12,6 +12,7 @@ app.use(cors());
 const unityAPIKey = process.env.UNITY_API_KEY;
 
 const cdnAccessKey = process.env.CDN_ACCESS_KEY;
+const cdnPullZoneId = process.env.CDN_PULL_ZONE_ID;
 const cdnStorageAccessKey = process.env.CDN_STORAGE_ACCESS_KEY;
 const cdnStorageZoneName = process.env.CDN_STORAGE_ZONE_NAME;
 
@@ -45,6 +46,18 @@ const cdnStorageUploadFile = async (localFilePath, targetDirectoryPath, targetFi
 
 const cdnPurgePath = async (filePath) => {
     const url = `https://api.bunny.net/purge?url=${encodeURIComponent(`https://${cdnStorageZoneName}.b-cdn.net/${filePath}`)}`;
+
+    await fetch(url, {
+        method: "POST",
+        headers: {
+            "User-Agent": "arena-pvp-build-updater/1",
+            "AccessKey": cdnAccessKey
+        }
+    })
+}
+
+const cdnPurgeZone = async () => {
+    const url = `https://api.bunny.net/pullzone/${cdnPullZoneId}/purgeCache`;
 
     await fetch(url, {
         method: "POST",
@@ -139,6 +152,8 @@ const handleUnityBuildSuccess = async (json) => {
 
     await cdnPurgePath(`${targetDirectoryPath}/${targetFileName}`);
     await cdnPurgePath(`${latestCommitDirectoryPath}/${latestCommitFileName}`);
+
+    await cdnPurgeZone();
 
     console.log("Finished processing build");
 }
