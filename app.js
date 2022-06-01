@@ -105,7 +105,7 @@ const handleUnityBuildSuccess = async (json) => {
     const platform = json.platform;
     const archId = platform.includes("linux") ? "linux-x64" : "win-x64";
 
-    const targetDirectoryPath = "arena-pvp-game/downloads";
+    const targetDirectoryPath = "arena-pvp-game/downloads-improved";
     const targetFileName = `${archId}.zip`;
 
     const shareURL = json.links["share_url"].href;
@@ -137,7 +137,7 @@ const handleUnityBuildSuccess = async (json) => {
     await fsPromises.writeFile(latestCommitLocalFilePath, latestCommit);
 
     const latestCommitDirectoryPath = "arena-pvp-game";
-    const latestCommitFileName = `latest-commit-${archId}.txt`;
+    const latestCommitFileName = `latest-commit-${archId}-improved-version.txt`;
 
     await cdnStorageDeleteFile(
         latestCommitDirectoryPath,
